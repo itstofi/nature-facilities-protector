@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Lint and format
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Python tests
+        run: pytest -q
+      - name: JavaScript decoder tests
+        run: node decoder/decoder.test.js
+      - name: C++ payload tests
+        run: |
+          g++ -std=c++17 -Ifirmware/nfp_environment_node tests/cpp/test_payload.cpp -o /tmp/nfp-payload-test
+          /tmp/nfp-payload-test
+      - name: Credential scan
+        run: python scripts/check_no_secrets.py
+      - name: Evaluation and document checks
+        run: |
+          python -m tools.summarize_evaluation > /tmp/nfp-evaluation.md
+          test -s docs/architecture.png
+          test -s docs/case-study.pdf
+          test -s data/evaluation_summary.csv
+
+  firmware:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: arduino/setup-arduino-cli@81d310742121c928ea9c8bbd407b4217b432ae02 # v2.0.0
+        with:
+          version: "1.5.1"
+      - name: Install RAK4631 board support
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/RAKwireless/RAKwireless-Arduino-BSP-Index/main/package_rakwireless_index.json
+          arduino-cli core update-index
+          arduino-cli core install rakwireless:nrf52@1.3.3
+      - name: Install pinned firmware libraries
+        run: |
+          arduino-cli lib update-index
+          arduino-cli lib install "Adafruit BME680 Library@2.0.6"
+          arduino-cli lib install "SX126x-Arduino@2.0.24"
+          arduino-cli lib install "RAKwireless MQx library@1.0.0"
+      - name: Compile credential-free environment node
+        run: |
+          cp firmware/nfp_environment_node/credentials.example.h firmware/nfp_environment_node/credentials.h
+          arduino-cli compile --fqbn rakwireless:nrf52:WisCoreRAK4631Board firmware/nfp_environment_node
+      - name: Compile MQ-2 smoke alarm
+        run: arduino-cli compile --fqbn rakwireless:nrf52:WisCoreRAK4631Board firmware/nfp_smoke_alarm

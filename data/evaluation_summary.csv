@@ -1,0 +1,4 @@
+environment,temp_min_c,temp_max_c,humidity_min_percent,humidity_max_percent,pressure_min_hpa,pressure_max_hpa,gas_min_ohm,gas_max_ohm,notes
+indoor,36.81,38.03,15,38,973.64,976.11,99191,99191,one 15% humidity entry has a different date from surrounding rows
+urban-outdoor,47.87,47.91,7,7,980.41,980.49,3458210,3716250,high-temperature low-humidity recorded condition
+forest,14.43,14.46,67,67,1016.72,1016.78,190015,205712,cooler and more humid recorded condition

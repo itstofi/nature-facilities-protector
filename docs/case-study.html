@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nature and Facilities Protector — Public Case Study</title>
+<style>
+:root{--ink:#14211d;--muted:#53635d;--paper:#f5f2e9;--line:#c9c9bc;--accent:#936113;--green:#176b57}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 "Avenir Next","Segoe UI",sans-serif}main{max-width:980px;margin:auto;padding:64px 48px}h1,h2,h3{font-family:Charter,Georgia,serif;font-weight:500;line-height:1.05}h1{font-size:58px;letter-spacing:-.03em;margin:12px 0 20px}h2{font-size:32px;margin:54px 0 18px;border-top:1px solid var(--line);padding-top:24px}h3{font-size:22px}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);font-weight:700}.lede{font-size:21px;color:var(--muted);max-width:780px}.meta{display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:28px 0}.callout{border-left:4px solid var(--accent);padding:14px 18px;background:#ebe5d6;margin:28px 0}.architecture{width:100%;background:#020617;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}.panel{border-top:1px solid var(--line);padding-top:14px}.panel h3{margin:0 0 8px}.panel p{color:var(--muted)}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:11px 9px;text-align:left;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--green)}.outputs{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.outputs figure{margin:0}.outputs img{width:100%;border:1px solid var(--line)}figcaption{font-size:12px;color:var(--muted);margin-top:7px}.limitations li+li{margin-top:8px}.footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}@page{size:A4;margin:15mm}@media print{body{background:#fff}main{padding:0;max-width:none}h1{font-size:42px}h2{break-after:avoid}figure,.panel,.grid,.outputs,.callout,table{break-inside:avoid}#evaluation,#limitations{break-before:page}.architecture{max-height:145mm;object-fit:contain}.outputs img{max-height:115mm;object-fit:contain}}@media(max-width:700px){main{padding:32px 20px}h1{font-size:42px}.grid,.outputs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">University of Nicosia · BSc Computer Engineering · 2024</div>
+<h1>Nature and Facilities Protector</h1>
+<p class="lede">A modular, solar-assisted IoT prototype exploring remote environmental monitoring, LoRaWAN telemetry, and early hazard indication across indoor, urban-outdoor, and forest settings.</p>
+<div class="meta"><span>Author: Mustafa Jweed</span><span>Supervisor: Dr Stelios Neophytou</span><span>Status: Academic prototype</span></div>
+<div class="callout"><strong>Public-release boundary.</strong> This is a sanitized summary, not the raw thesis. Historical network credentials, device identifiers, service paths, and vendor figures have been excluded. The system is not a certified fire or gas alarm.</div>
+
+<h2>Problem and objective</h2>
+<p>The project investigated whether a low-power modular node could combine environmental and hazard-related sensors with long-range connectivity for places where continuous wired power or conventional internet access may be unavailable. Target scenarios included forests, industrial facilities, petrol or gas stations, and buildings with central heating or gas systems.</p>
+<p>The prototype emphasized observation and early indication: collect environmental readings, encode them compactly, transmit them through LoRaWAN, decode them into readable values, store them for analysis, and optionally trigger alerts under an operator-defined policy.</p>
+
+<h2>Reference architecture</h2>
+<img class="architecture" src="architecture.png" alt="Architecture showing sensor modules feeding a RAK4631 edge node, LoRaWAN transport, a payload decoder, storage dashboard, and optional alerts">
+<p>The Helium network provided LoRaWAN connectivity and blockchain-incentivized coverage. Environmental payloads were transported through the network; the project does not claim they were written to a blockchain.</p>
+<p>The historical proof-of-integration continued through a JavaScript decoder, Google Forms/Sheets logging, a Python/Kivy display, and optional threshold-based SMS. Those cloud/UI artifacts are described here but not redistributed because they depended on private service-account configuration, Sheet identifiers, local paths, and personal notification details.</p>
+
+<h2>Prototype composition</h2>
+<div class="grid">
+<div class="panel"><h3>Edge and power</h3><p>RAK4631 / RAK4630 WisBlock core, modular baseboard, battery, and solar-assisted charging concept.</p></div>
+<div class="panel"><h3>Environmental sensors</h3><p>BME680, SHTC3, LPS22HB, OPT3001, LIS3DH, GNSS, and related modular interfaces.</p></div>
+<div class="panel"><h3>Hazard indication</h3><p>MQ-2 smoke/combustible-gas experimentation and an audible/visual local alarm path.</p></div>
+<div class="panel"><h3>Data pipeline</h3><p>Big-endian binary payload, LoRaWAN uplink, JavaScript decoding, historical storage/dashboard, and optional messaging integration.</p></div>
+</div>
+
+<h2>Software reconstruction</h2>
+<p>The public repository supplies a credential-free reference firmware sketch, a shared C++ payload codec, matching Python and JavaScript decoders, a secret scanner, and hardware-independent tests. The codec preserves both frames found in the student working folder: a 13-byte historical packet and a 15-byte battery extension. Both use an unsigned centi-degree temperature field, so negative readings are rejected rather than wrapped.</p>
+<table>
+<thead><tr><th>Offset</th><th>Bytes</th><th>Field</th><th>Scale</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>1</td><td>Environment message type</td><td><code>0x01</code></td></tr>
+<tr><td>1</td><td>2</td><td>Temperature</td><td>unsigned ÷100 °C</td></tr>
+<tr><td>3</td><td>2</td><td>Relative humidity</td><td>÷100 %</td></tr>
+<tr><td>5</td><td>4</td><td>Pressure</td><td>÷100 hPa</td></tr>
+<tr><td>9</td><td>4</td><td>Gas resistance</td><td>Ω</td></tr>
+<tr><td>13</td><td>2</td><td>Optional battery extension</td><td>mV</td></tr>
+</tbody>
+</table>
+
+<h2 id="evaluation">Recorded evaluation summary</h2>
+<p>These ranges are observations reported in the 2024 student thesis. They are not independently certified sensor-performance results. The indoor 15% humidity row is dated differently from the surrounding rows and is retained only as an anomalous recorded entry.</p>
+<table>
+<thead><tr><th>Environment</th><th>Temperature</th><th>Humidity</th><th>Pressure</th><th>Gas resistance</th></tr></thead>
+<tbody>
+<tr><td>Indoor</td><td>36.81–38.03 °C</td><td>15–38%</td><td>973.64–976.11 hPa</td><td>99,191 Ω</td></tr>
+<tr><td>Urban outdoor</td><td>47.87–47.91 °C</td><td>7%</td><td>980.41–980.49 hPa</td><td>3,458,210–3,716,250 Ω</td></tr>
+<tr><td>Forest</td><td>14.43–14.46 °C</td><td>67%</td><td>1016.72–1016.78 hPa</td><td>190,015–205,712 Ω</td></tr>
+</tbody>
+</table>
+
+<h2>Safe output evidence</h2>
+<div class="outputs">
+<figure><img src="images/smoke-serial-output.jpg" alt="Arduino serial output showing repeated MQ-2 PPM readings"><figcaption>MQ-2 serial readings from the student working folder. No credentials or device identifiers are shown.</figcaption></figure>
+<figure><img src="images/temperature-humidity-serial-output.jpg" alt="Arduino serial output showing temperature and relative-humidity readings with checksum status"><figcaption>SHTC3 temperature/humidity output with checksum validation.</figcaption></figure>
+</div>
+
+<h2 id="limitations">Limitations and future work</h2>
+<ul class="limitations">
+<li>The prototype was not certified against fire-alarm, gas-detection, or life-safety standards.</li>
+<li>Sensor thresholds and MQ-2 calibration require gas-specific laboratory validation.</li>
+<li>Recorded values came from limited student tests rather than a controlled long-duration study.</li>
+<li>LoRaWAN availability, latency, and alert delivery are dependent on gateway and backend coverage.</li>
+<li>Power optimization, enclosure/weather resistance, tamper protection, and secure device provisioning require further engineering.</li>
+<li>A production version should use encrypted credential provisioning, authenticated APIs, durable event storage, observability, and validated escalation policies.</li>
+</ul>
+
+<div class="footer">Sanitized public case study generated from Mustafa Jweed’s private 2024 final-year project. Vendor examples, private identifiers, and historical credentials are not redistributed.</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nature and Facilities Protector — Architecture</title>
+<style>
+:root{color-scheme:dark;font-family:"SFMono-Regular",Consolas,monospace;background:#020617;color:#e2e8f0}
+*{box-sizing:border-box}body{margin:0;padding:32px;background:#020617;background-image:linear-gradient(#1e293b55 1px,transparent 1px),linear-gradient(90deg,#1e293b55 1px,transparent 1px);background-size:40px 40px}.header{max-width:1200px;margin:0 auto 22px}.eyebrow{color:#34d399;font-size:12px;letter-spacing:.15em;text-transform:uppercase}.header h1{font-size:28px;margin:8px 0}.header p{margin:0;color:#94a3b8;font-size:13px}.card{max-width:1200px;margin:auto;border:1px solid #334155;border-radius:14px;background:#020617ee;overflow:hidden}svg{display:block;width:100%;height:auto}.notes{max-width:1200px;margin:18px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.note{border:1px solid #334155;border-radius:8px;background:#0f172a;padding:16px}.note h2{font-size:12px;margin:0 0 8px}.note h2.cyan{color:#22d3ee}.note h2.amber{color:#fbbf24}.note h2.rose{color:#fb7185}.note p{font-size:11px;line-height:1.6;color:#94a3b8;margin:0}@media(max-width:760px){body{padding:14px}.notes{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="header">
+<div class="eyebrow">Academic IoT prototype · 2024</div>
+<h1>Nature and Facilities Protector</h1>
+<p>Sensor acquisition → compact payload → LoRaWAN transport → decoding, storage, and alerts</p>
+</header>
+<div class="card">
+<svg viewBox="0 0 1200 700" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+<title id="title">Nature and Facilities Protector architecture</title>
+<desc id="desc">Environmental sensors connect to a RAK4631 edge node powered by battery and solar. The node encodes readings and transmits them over LoRaWAN through the Helium network. A decoder produces human-readable data for storage, dashboards, and optional alerts.</desc>
+<defs>
+<marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#64748b"/></marker>
+<marker id="arrow-orange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#fb923c"/></marker>
+</defs>
+<!-- connections behind components -->
+<g fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)">
+<path d="M250 190H380"/><path d="M250 335H380"/><path d="M250 480H380"/><path d="M465 485V430"/><path d="M550 335H650"/><path d="M820 335H910"/><path d="M1020 365V445"/><path d="M1020 505V565"/>
+</g>
+<path d="M550 335H650" stroke="#fb923c" stroke-width="3" fill="none" marker-end="url(#arrow-orange)"/>
+<!-- boundaries -->
+<rect x="30" y="65" width="550" height="545" rx="14" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="8 5"/>
+<text x="50" y="94" fill="#34d399" font-size="12" font-weight="700">EDGE / FIELD NODE</text>
+<rect x="615" y="115" width="235" height="440" rx="14" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8 5"/>
+<text x="635" y="144" fill="#fbbf24" font-size="12" font-weight="700">LPWAN TRANSPORT</text>
+<rect x="880" y="115" width="290" height="500" rx="14" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="8 5"/>
+<text x="900" y="144" fill="#a78bfa" font-size="12" font-weight="700">DATA & RESPONSE</text>
+<!-- sensor boxes -->
+<g font-family="SFMono-Regular,Consolas,monospace">
+<g><rect x="65" y="135" width="185" height="110" rx="7" fill="#0f172a"/><rect x="65" y="135" width="185" height="110" rx="7" fill="rgba(8,51,68,.5)" stroke="#22d3ee" stroke-width="1.5"/><text x="85" y="168" fill="#22d3ee" font-size="13" font-weight="700">ENVIRONMENT</text><text x="85" y="194" fill="#e2e8f0" font-size="11">BME680 · SHTC3</text><text x="85" y="215" fill="#94a3b8" font-size="10">temperature · RH · pressure</text></g>
+<g><rect x="65" y="280" width="185" height="110" rx="7" fill="#0f172a"/><rect x="65" y="280" width="185" height="110" rx="7" fill="rgba(136,19,55,.42)" stroke="#fb7185" stroke-width="1.5"/><text x="85" y="313" fill="#fb7185" font-size="13" font-weight="700">HAZARD SENSING</text><text x="85" y="339" fill="#e2e8f0" font-size="11">MQ-2 · BME680</text><text x="85" y="360" fill="#94a3b8" font-size="10">smoke proxy · gas resistance</text></g>
+<g><rect x="65" y="425" width="185" height="110" rx="7" fill="#0f172a"/><rect x="65" y="425" width="185" height="110" rx="7" fill="rgba(30,41,59,.65)" stroke="#94a3b8" stroke-width="1.5"/><text x="85" y="458" fill="#cbd5e1" font-size="13" font-weight="700">CONTEXT</text><text x="85" y="484" fill="#e2e8f0" font-size="11">GNSS · light · motion</text><text x="85" y="505" fill="#94a3b8" font-size="10">location · lux · acceleration</text></g>
+<!-- edge core -->
+<g><rect x="380" y="250" width="170" height="170" rx="8" fill="#0f172a"/><rect x="380" y="250" width="170" height="170" rx="8" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/><text x="405" y="292" fill="#34d399" font-size="14" font-weight="700">RAK4631 NODE</text><text x="405" y="322" fill="#e2e8f0" font-size="11">nRF52840 + SX1262</text><text x="405" y="347" fill="#94a3b8" font-size="10">I²C acquisition</text><text x="405" y="368" fill="#94a3b8" font-size="10">13 / 15-byte payload codec</text><text x="405" y="389" fill="#94a3b8" font-size="10">periodic low-power uplink</text></g>
+<g><rect x="355" y="485" width="220" height="75" rx="7" fill="#0f172a"/><rect x="355" y="485" width="220" height="75" rx="7" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="1.5"/><text x="380" y="516" fill="#fbbf24" font-size="12" font-weight="700">BATTERY + SOLAR</text><text x="380" y="540" fill="#94a3b8" font-size="10">off-grid power concept</text></g>
+<!-- transport -->
+<g><rect x="650" y="250" width="170" height="170" rx="8" fill="#0f172a"/><rect x="650" y="250" width="170" height="170" rx="8" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="674" y="292" fill="#fbbf24" font-size="14" font-weight="700">LoRaWAN</text><text x="674" y="321" fill="#e2e8f0" font-size="11">EU868 · Class A · OTAA</text><text x="674" y="346" fill="#94a3b8" font-size="10">long range / low power</text><text x="674" y="371" fill="#94a3b8" font-size="10">Helium gateway + network</text><text x="674" y="396" fill="#94a3b8" font-size="10">payload is not stored on-chain</text></g>
+<!-- data -->
+<g><rect x="910" y="240" width="220" height="125" rx="8" fill="#0f172a"/><rect x="910" y="240" width="220" height="125" rx="8" fill="rgba(251,146,60,.25)" stroke="#fb923c" stroke-width="2"/><text x="935" y="275" fill="#fb923c" font-size="13" font-weight="700">PAYLOAD DECODER</text><text x="935" y="303" fill="#e2e8f0" font-size="11">JavaScript / Python</text><text x="935" y="327" fill="#94a3b8" font-size="10">strict binary validation</text><text x="935" y="347" fill="#94a3b8" font-size="10">human-readable readings</text></g>
+<g><rect x="910" y="445" width="220" height="60" rx="7" fill="#0f172a"/><rect x="910" y="445" width="220" height="60" rx="7" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="1.5"/><text x="935" y="473" fill="#a78bfa" font-size="12" font-weight="700">STORAGE / DASHBOARD</text><text x="935" y="492" fill="#94a3b8" font-size="9">historical analysis and visibility</text></g>
+<g><rect x="910" y="565" width="220" height="60" rx="7" fill="#0f172a"/><rect x="910" y="565" width="220" height="60" rx="7" fill="rgba(136,19,55,.42)" stroke="#fb7185" stroke-width="1.5"/><text x="935" y="592" fill="#fb7185" font-size="12" font-weight="700">OPTIONAL ALERTS</text><text x="935" y="611" fill="#94a3b8" font-size="9">threshold policy must be validated</text></g>
+</g>
+<text x="600" y="665" text-anchor="middle" fill="#64748b" font-size="9">Reconstructed reference architecture · credentials and private service identifiers excluded</text>
+</svg>
+</div>
+<section class="notes">
+<div class="note"><h2 class="cyan">Sensor coverage</h2><p>Environmental, gas/smoke, location, light, motion, and power measurements were explored with modular WisBlock hardware.</p></div>
+<div class="note"><h2 class="amber">Network boundary</h2><p>Helium supplies LoRaWAN connectivity and incentivized coverage. The repository does not claim that raw sensor records are written to a blockchain.</p></div>
+<div class="note"><h2 class="rose">Prototype limitation</h2><p>This is an academic monitoring prototype, not a certified fire alarm or life-safety system.</p></div>
+</section>
+</body>
+</html>

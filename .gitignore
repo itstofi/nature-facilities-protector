@@ -1,0 +1,9 @@
+# Local build products and credentials
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.py[cod]
+/firmware/nfp_environment_node/credentials.h
+/uv.lock
+.DS_Store

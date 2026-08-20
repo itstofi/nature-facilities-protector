@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "Nature and Facilities Protector"
+message: "If you use this reference implementation or case study, please cite the project."
+type: software
+authors:
+  - family-names: Jweed
+    given-names: Mustafa Tariq
+repository-code: "https://github.com/itstofi/nature-facilities-protector"
+url: "https://itstofi.github.io/"
+license: MIT
+version: 1.0.0
+date-released: 2026-08-20
+keywords:
+  - IoT
+  - LoRaWAN
+  - environmental monitoring
+  - wildfire detection
+  - WisBlock
