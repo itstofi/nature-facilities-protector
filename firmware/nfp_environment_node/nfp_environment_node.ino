@@ -124,7 +124,11 @@ void sendEnvironmentReading() {
       static_cast<std::uint32_t>(sensor.gas_resistance),
       readBatteryMv(),
   };
-  const auto encoded = nfp::encodeExtendedEnvironment(reading);
+  std::array<std::uint8_t, nfp::kExtendedPayloadSize> encoded{};
+  if (!nfp::encodeExtendedEnvironment(reading, encoded)) {
+    Serial.println("Skipping reading rejected by payload validation.");
+    return;
+  }
   std::copy(encoded.begin(), encoded.end(), packetBuffer.begin());
   packet.buffsize = encoded.size();
   packet.port = kAppPort;

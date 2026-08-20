@@ -33,21 +33,37 @@ def _scaled(value: float, factor: int, maximum: int, name: str) -> int:
     return result
 
 
-def _unsigned_integer(value: int | None, maximum: int, name: str) -> int:
+def _unsigned_integer(value: int | None, minimum: int, maximum: int, name: str) -> int:
     if value is None or isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{name} must be an integer")
-    if not math.isfinite(float(value)) or int(value) != value or not 0 <= int(value) <= maximum:
+    if (
+        not math.isfinite(float(value))
+        or int(value) != value
+        or not minimum <= int(value) <= maximum
+    ):
         raise ValueError(f"{name} is outside the encodable range")
     return int(value)
 
 
+def _validate_wire(temperature: int, humidity: int, pressure: int, gas: int) -> None:
+    if not (
+        0 <= temperature <= 8_500
+        and 0 <= humidity <= 10_000
+        and 30_000 <= pressure <= 110_000
+        and 1 <= gas <= 100_000_000
+    ):
+        raise ValueError("environment reading is outside supported sensor bounds")
+
+
 def _fields(reading: EnvironmentReading) -> tuple[int, int, int, int]:
-    return (
-        _scaled(reading.temperature_c, 100, 0xFFFF, "temperature_c"),
+    fields = (
+        _scaled(reading.temperature_c, 100, 8_500, "temperature_c"),
         _scaled(reading.humidity_percent, 100, 10_000, "humidity_percent"),
-        _scaled(reading.pressure_hpa, 100, 0xFFFFFFFF, "pressure_hpa"),
-        _unsigned_integer(reading.gas_resistance_ohm, 0xFFFFFFFF, "gas_resistance_ohm"),
+        _scaled(reading.pressure_hpa, 100, 110_000, "pressure_hpa"),
+        _unsigned_integer(reading.gas_resistance_ohm, 1, 100_000_000, "gas_resistance_ohm"),
     )
+    _validate_wire(*fields)
+    return fields
 
 
 def encode_legacy_environment(reading: EnvironmentReading) -> bytes:
@@ -57,7 +73,7 @@ def encode_legacy_environment(reading: EnvironmentReading) -> bytes:
 
 def encode_extended_environment(reading: EnvironmentReading) -> bytes:
     """Encode the related 15-byte frame that appends battery millivolts."""
-    battery = _unsigned_integer(reading.battery_mv, 0xFFFF, "battery_mv")
+    battery = _unsigned_integer(reading.battery_mv, 0, 6_000, "battery_mv")
     return _EXTENDED.pack(MESSAGE_TYPE_ENVIRONMENT, *_fields(reading), battery)
 
 
@@ -73,6 +89,9 @@ def decode_environment(payload: bytes | bytearray | memoryview) -> EnvironmentRe
         raise ValueError("environment payload must be exactly 13 or 15 bytes")
     if message_type != MESSAGE_TYPE_ENVIRONMENT:
         raise ValueError(f"unsupported message type: {message_type}")
+    _validate_wire(temperature, humidity, pressure, gas)
+    if battery is not None and not 0 <= battery <= 6_000:
+        raise ValueError("battery voltage is outside supported sensor bounds")
     return EnvironmentReading(
         temperature_c=temperature / 100,
         humidity_percent=humidity / 100,

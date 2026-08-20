@@ -14,8 +14,12 @@ int main() {
       0x01, 0x0B, 0x09, 0x13, 0x88, 0x00, 0x01, 0x76,
       0x71, 0x00, 0x01, 0x88, 0x36, 0x0F, 0x0A};
 
-  assert(nfp::encodeLegacyEnvironment(reading) == expectedLegacy);
-  assert(nfp::encodeExtendedEnvironment(reading) == expectedExtended);
+  std::array<std::uint8_t, nfp::kLegacyPayloadSize> encodedLegacy{};
+  std::array<std::uint8_t, nfp::kExtendedPayloadSize> encodedExtended{};
+  assert(nfp::encodeLegacyEnvironment(reading, encodedLegacy));
+  assert(encodedLegacy == expectedLegacy);
+  assert(nfp::encodeExtendedEnvironment(reading, encodedExtended));
+  assert(encodedExtended == expectedExtended);
 
   nfp::EnvironmentReading decoded{};
   assert(nfp::decodeLegacyEnvironment(expectedLegacy, decoded));
@@ -27,6 +31,14 @@ int main() {
   auto wrongType = expectedLegacy;
   wrongType[0] = 0x02;
   assert(!nfp::decodeLegacyEnvironment(wrongType, decoded));
+
+  auto zeroFrame = expectedLegacy;
+  zeroFrame.fill(0);
+  zeroFrame[0] = nfp::kEnvironmentMessageType;
+  assert(!nfp::decodeLegacyEnvironment(zeroFrame, decoded));
+
+  nfp::EnvironmentReading invalid{8501, 5000, 95857, 100406, 3850};
+  assert(!nfp::encodeLegacyEnvironment(invalid, encodedLegacy));
 
   std::cout << "C++ payload tests passed.\n";
   return 0;

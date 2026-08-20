@@ -29,3 +29,10 @@ def test_secret_scan_accepts_zero_placeholder_setter() -> None:
     content = "LoRaWan." + "setApp" + 'Key("00 00 00 00")'
 
     assert scan_text("firmware.ino", content) == []
+
+
+def test_secret_scan_rejects_common_cloud_token_shapes() -> None:
+    aws = "AKIA" + "A" * 16
+    twilio = "SK" + "a" * 32
+
+    assert scan_text("config.html", f"{aws}\n{twilio}")

@@ -16,5 +16,7 @@ See:
 - [`architecture.html`](architecture.html) — self-contained system diagram
 - [`../data/evaluation_summary.csv`](../data/evaluation_summary.csv) — thesis-reported ranges
 
-The public summary preserves the project problem, architecture, software pipeline, evaluation
-ranges, limitations, and future-work findings without exposing private identifiers.
+The two images under `docs/images/` are cropped serial-monitor outputs from student bench tests.
+The crops intentionally exclude source-code panes, vendor sketch names, account information,
+network identifiers, and personal data. They are evidence of acquisition-loop output only—not
+sensor-accuracy or safety-validation results.

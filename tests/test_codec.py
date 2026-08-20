@@ -57,6 +57,15 @@ def test_decode_rejects_wrong_message_or_length(payload: bytes) -> None:
         decode_environment(payload)
 
 
+def test_decode_rejects_semantically_invalid_frames() -> None:
+    for payload in (
+        bytes.fromhex("01" + "00" * 12),
+        bytes.fromhex("01" + "ff" * 12),
+    ):
+        with pytest.raises(ValueError, match="outside supported sensor bounds"):
+            decode_environment(payload)
+
+
 def test_extended_encoder_requires_battery() -> None:
     with pytest.raises(ValueError, match="battery_mv"):
         encode_extended_environment(READING)

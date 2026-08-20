@@ -10,14 +10,19 @@ ROOT = Path(__file__).resolve().parents[1]
 TEXT_SUFFIXES = {
     ".c",
     ".cc",
+    ".cff",
     ".cpp",
+    ".csv",
+    ".env",
     ".h",
     ".hpp",
+    ".html",
     ".ino",
     ".js",
     ".json",
     ".md",
     ".py",
+    ".toml",
     ".txt",
     ".yml",
     ".yaml",
@@ -34,6 +39,11 @@ PRIVATE_MARKERS = (
     "TWILIO_AUTH_TOKEN=",
     "GOOGLE_APPLICATION_CREDENTIALS=",
 )
+TOKEN_PATTERNS = (
+    ("AWS access key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("Twilio API key", re.compile(r"\bSK[0-9a-fA-F]{32}\b")),
+    ("GitHub token", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b")),
+)
 
 
 def scan_text(path: str, content: str) -> list[str]:
@@ -49,6 +59,9 @@ def scan_text(path: str, content: str) -> list[str]:
     for marker in PRIVATE_MARKERS:
         if marker in content:
             findings.append(f"{path}: private credential marker {marker!r}")
+    for label, pattern in TOKEN_PATTERNS:
+        if pattern.search(content):
+            findings.append(f"{path}: {label} shape")
     return findings
 
 

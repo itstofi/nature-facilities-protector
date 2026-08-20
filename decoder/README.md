@@ -21,5 +21,8 @@ The layout is big-endian:
 | 9 | 4 | gas resistance | Ω |
 | 13 | 2 | optional battery voltage | mV |
 
+Both decoders reject incorrect lengths/markers and values outside documented sensor bounds:
+0–85 °C, 0–100% RH, 300–1100 hPa, 1–100,000,000 Ω, and (when present) 0–6,000 mV.
+
 Run `node decoder/decoder.test.js` to verify both cross-language vectors and malformed-input
 handling.

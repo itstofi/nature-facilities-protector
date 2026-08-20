@@ -19,6 +19,7 @@ The following files were newly authored for this public release:
 - the sanitized reference firmware sketches
 - the architecture diagram and case-study text
 - the evaluation-summary dataset derived from ranges reported in the thesis
+- cropped, metadata-clean serial-monitor outputs that exclude vendor source-code/editor panes
 
 ## Third-party hardware and libraries
 

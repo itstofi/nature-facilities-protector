@@ -77,7 +77,9 @@ The related battery extension appends `0f0a` (3,850 mV):
 010b09138800017671000188360f0a
 ```
 
-Both decode to 28.25 °C, 50% RH, 958.57 hPa, and 100,406 Ω.
+Both decode to 28.25 °C, 50% RH, 958.57 hPa, and 100,406 Ω. Decoders also reject
+correct-length frames whose values fall outside documented sensor bounds: 0–85 °C, 0–100% RH,
+300–1100 hPa, 1–100,000,000 Ω, and 0–6,000 mV when battery data is present.
 
 ## Run the hardware-independent checks
 
@@ -99,6 +101,8 @@ pytest -q
 node decoder/decoder.test.js
 c++ -std=c++17 -Ifirmware/nfp_environment_node tests/cpp/test_payload.cpp -o /tmp/nfp-payload-test
 /tmp/nfp-payload-test
+c++ -std=c++17 -Ifirmware/nfp_smoke_alarm tests/cpp/test_smoke_policy.cpp -o /tmp/nfp-smoke-policy-test
+/tmp/nfp-smoke-policy-test
 python scripts/check_no_secrets.py
 python -m tools.summarize_evaluation
 ```
@@ -121,7 +125,7 @@ Verified local builds with Arduino CLI 1.5.1:
 | Sketch | Flash | Dynamic memory |
 | --- | ---: | ---: |
 | Environment + LoRaWAN | 65,844 bytes (8%) | 10,640 bytes (4%) |
-| MQ-2 smoke alarm | 54,260 bytes (6%) | 9,440 bytes (3%) |
+| MQ-2 smoke alarm | 54,348 bytes (6%) | 9,444 bytes (3%) |
 
 ## Thesis-reported evaluation ranges
 

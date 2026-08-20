@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+#include "smoke_policy.h"
+
 namespace {
 
 constexpr std::uint8_t kMq2Address = 0x51;
@@ -10,6 +12,7 @@ constexpr float kLoadResistanceKohm = 10.0F;
 constexpr float kAlarmThresholdPpm = 3000.0F;
 
 ADC121C021 smokeSensor;
+bool sensorReady = false;
 
 bool initializeSensor() {
   pinMode(WB_IO6, OUTPUT);
@@ -37,15 +40,23 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
   pinMode(WB_IO1, OUTPUT);
-  if (!initializeSensor()) {
+  sensorReady = initializeSensor();
+  if (!sensorReady) {
     Serial.println("MQ-2 initialization failed. Check power, I2C, and clean-air calibration.");
   }
 }
 
 void loop() {
-  const float smokePpm = smokeSensor.readSensor();
-  const bool alarm = isfinite(smokePpm) && smokePpm >= kAlarmThresholdPpm;
-  digitalWrite(WB_IO1, alarm ? HIGH : LOW);
-  Serial.printf("smoke_ppm=%.2f alarm=%s\n", smokePpm, alarm ? "true" : "false");
+  const float smokePpm = sensorReady ? smokeSensor.readSensor() : NAN;
+  const nfp::SmokeState state =
+      nfp::classifySmoke(sensorReady, smokePpm, kAlarmThresholdPpm);
+  digitalWrite(WB_IO1, nfp::shouldAssertAlarm(state) ? HIGH : LOW);
+
+  if (state == nfp::SmokeState::SensorFault) {
+    Serial.println("MQ-2 sensor fault; local alarm asserted.");
+  } else {
+    Serial.printf("smoke_ppm=%.2f alarm=%s\n", smokePpm,
+                  state == nfp::SmokeState::Alarm ? "true" : "false");
+  }
   delay(1000);
 }

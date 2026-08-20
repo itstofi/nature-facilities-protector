@@ -18,6 +18,8 @@ node:
 cpp:
 	$(CXX) -std=c++17 -Ifirmware/nfp_environment_node tests/cpp/test_payload.cpp -o /tmp/nfp-payload-test
 	/tmp/nfp-payload-test
+	$(CXX) -std=c++17 -Ifirmware/nfp_smoke_alarm tests/cpp/test_smoke_policy.cpp -o /tmp/nfp-smoke-policy-test
+	/tmp/nfp-smoke-policy-test
 
 secrets:
 	$(PYTHON) scripts/check_no_secrets.py

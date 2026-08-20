@@ -58,19 +58,29 @@ inline void encodeCommon(std::array<std::uint8_t, N>& payload,
   writeU32(payload, 9, reading.gasResistanceOhm);
 }
 
-inline std::array<std::uint8_t, kLegacyPayloadSize> encodeLegacyEnvironment(
-    const EnvironmentReading& reading) {
-  std::array<std::uint8_t, kLegacyPayloadSize> payload{};
-  encodeCommon(payload, reading);
-  return payload;
+inline bool isValidCommon(const EnvironmentReading& reading) {
+  return reading.temperatureCentiC <= 8500 && reading.humidityCentiPercent <= 10000 &&
+         reading.pressureCentiHpa >= 30000 && reading.pressureCentiHpa <= 110000 &&
+         reading.gasResistanceOhm >= 1 && reading.gasResistanceOhm <= 100000000;
 }
 
-inline std::array<std::uint8_t, kExtendedPayloadSize> encodeExtendedEnvironment(
-    const EnvironmentReading& reading) {
-  std::array<std::uint8_t, kExtendedPayloadSize> payload{};
+inline bool encodeLegacyEnvironment(
+    const EnvironmentReading& reading,
+    std::array<std::uint8_t, kLegacyPayloadSize>& payload) {
+  if (!isValidCommon(reading)) return false;
+  payload.fill(0);
+  encodeCommon(payload, reading);
+  return true;
+}
+
+inline bool encodeExtendedEnvironment(
+    const EnvironmentReading& reading,
+    std::array<std::uint8_t, kExtendedPayloadSize>& payload) {
+  if (!isValidCommon(reading) || reading.batteryMv > 6000) return false;
+  payload.fill(0);
   encodeCommon(payload, reading);
   writeU16(payload, 13, reading.batteryMv);
-  return payload;
+  return true;
 }
 
 template <std::size_t N>
@@ -81,7 +91,7 @@ inline bool decodeCommon(const std::array<std::uint8_t, N>& payload,
   reading.humidityCentiPercent = readU16(payload, 3);
   reading.pressureCentiHpa = readU32(payload, 5);
   reading.gasResistanceOhm = readU32(payload, 9);
-  return true;
+  return isValidCommon(reading);
 }
 
 inline bool decodeLegacyEnvironment(
@@ -97,7 +107,7 @@ inline bool decodeExtendedEnvironment(
     EnvironmentReading& reading) {
   if (!decodeCommon(payload, reading)) return false;
   reading.batteryMv = readU16(payload, 13);
-  return true;
+  return reading.batteryMv <= 6000;
 }
 
 }  // namespace nfp

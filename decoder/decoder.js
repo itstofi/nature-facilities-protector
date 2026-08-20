@@ -6,7 +6,23 @@ const EXTENDED_PAYLOAD_SIZE = 15;
 
 function toBuffer(payload) {
   if (Buffer.isBuffer(payload)) return payload;
-  if (Array.isArray(payload) || ArrayBuffer.isView(payload)) return Buffer.from(payload);
+  if (Array.isArray(payload)) {
+    for (let index = 0; index < payload.length; index += 1) {
+      if (
+        !Object.hasOwn(payload, index) ||
+        !Number.isInteger(payload[index]) ||
+        payload[index] < 0 ||
+        payload[index] > 255
+      ) {
+        throw new TypeError('payload arrays must contain explicit byte integers from 0 to 255');
+      }
+    }
+    return Buffer.from(payload);
+  }
+  if (payload instanceof Uint8Array) return Buffer.from(payload);
+  if (ArrayBuffer.isView(payload)) {
+    throw new TypeError('typed payload views must be Uint8Array or Buffer');
+  }
   if (typeof payload === 'string') {
     if (!/^[0-9a-fA-F]+$/.test(payload) || payload.length % 2 !== 0) {
       throw new TypeError('payload hex must contain complete hexadecimal bytes');
@@ -32,6 +48,15 @@ function decodeEnvironment(payload) {
     gasResistanceOhm: bytes.readUInt32BE(9),
   };
   if (bytes.length === EXTENDED_PAYLOAD_SIZE) reading.batteryMv = bytes.readUInt16BE(13);
+  if (
+    reading.temperatureC < 0 || reading.temperatureC > 85 ||
+    reading.humidityPercent < 0 || reading.humidityPercent > 100 ||
+    reading.pressureHpa < 300 || reading.pressureHpa > 1100 ||
+    reading.gasResistanceOhm < 1 || reading.gasResistanceOhm > 100000000 ||
+    ('batteryMv' in reading && (reading.batteryMv < 0 || reading.batteryMv > 6000))
+  ) {
+    throw new RangeError('environment reading is outside supported sensor bounds');
+  }
   return reading;
 }
 

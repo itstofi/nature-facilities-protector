@@ -25,7 +25,9 @@ is ignored by Git. The sketch refuses to join when the application key remains a
 ## MQ-2 smoke alarm
 
 `nfp_smoke_alarm/nfp_smoke_alarm.ino` demonstrates clean-air calibration, PPM sampling, and a
-local alarm threshold using the RAK12004 / ADC121C021 interface.
+local alarm threshold using the RAK12004 / ADC121C021 interface. A host-tested smoke policy treats
+initialization failures and non-finite readings as sensor faults and asserts the local alarm rather
+than silently reporting a normal state.
 
 Required libraries:
 
