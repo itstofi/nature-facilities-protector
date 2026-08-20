@@ -7,17 +7,19 @@ const EXTENDED_PAYLOAD_SIZE = 15;
 function toBuffer(payload) {
   if (Buffer.isBuffer(payload)) return payload;
   if (Array.isArray(payload)) {
-    for (let index = 0; index < payload.length; index += 1) {
-      if (
-        !Object.hasOwn(payload, index) ||
-        !Number.isInteger(payload[index]) ||
-        payload[index] < 0 ||
-        payload[index] > 255
-      ) {
+    const length = payload.length;
+    const bytes = Buffer.alloc(length);
+    for (let index = 0; index < length; index += 1) {
+      if (!Object.hasOwn(payload, index)) {
         throw new TypeError('payload arrays must contain explicit byte integers from 0 to 255');
       }
+      const value = payload[index];
+      if (!Number.isInteger(value) || value < 0 || value > 255) {
+        throw new TypeError('payload arrays must contain explicit byte integers from 0 to 255');
+      }
+      bytes[index] = value;
     }
-    return Buffer.from(payload);
+    return bytes;
   }
   if (payload instanceof Uint8Array) return Buffer.from(payload);
   if (ArrayBuffer.isView(payload)) {

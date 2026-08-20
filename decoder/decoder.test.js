@@ -29,6 +29,19 @@ const sparse = [...validBytes];
 delete sparse[2];
 assert.throws(() => decodeEnvironment(sparse), /byte/i);
 
+const accessorBytes = [...validBytes];
+let accessorReads = 0;
+Object.defineProperty(accessorBytes, 2, {
+  configurable: true,
+  enumerable: true,
+  get() {
+    accessorReads += 1;
+    return accessorReads === 1 ? validBytes[2] : 256;
+  },
+});
+assert.deepEqual(decodeEnvironment(accessorBytes), expected);
+assert.equal(accessorReads, 1);
+
 assert.throws(() => decodeEnvironment('01' + '00'.repeat(12)), /sensor bounds/i);
 assert.throws(() => decodeEnvironment('01' + 'ff'.repeat(12)), /sensor bounds/i);
 assert.throws(() => decodeEnvironment('02' + '00'.repeat(12)), /message type/i);
